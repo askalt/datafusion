@@ -391,10 +391,11 @@ impl Statistics {
     /// For example, if we had statistics for columns `{"a", "b", "c"}`,
     /// projecting to `vec![2, 1]` would return statistics for columns `{"c",
     /// "b"}`.
-    pub fn project(mut self, projection: Option<&[usize]>) -> Self {
+    pub fn project(mut self, projection: Option<impl AsRef<[usize]>>) -> Self {
         let Some(projection) = projection else {
             return self;
         };
+        let projection = projection.as_ref();
 
         #[expect(clippy::large_enum_variant)]
         enum Slot {
@@ -1066,28 +1067,29 @@ mod tests {
 
     #[test]
     fn test_project_none() {
-        let stats = make_stats(vec![10, 20, 30]).project(None);
+        let projection: Option<Vec<_>> = None;
+        let stats = make_stats(vec![10, 20, 30]).project(projection);
         assert_eq!(stats, make_stats(vec![10, 20, 30]));
     }
 
     #[test]
     fn test_project_empty() {
-        let projection: Option<&[_]> = Some(&[]);
-        let stats = make_stats(vec![10, 20, 30]).project(projection);
+        let projection = Some(vec![]);
+        let stats = make_stats(vec![10, 20, 30]).project(projection.as_ref());
         assert_eq!(stats, make_stats(vec![]));
     }
 
     #[test]
     fn test_project_swap() {
-        let projection: Option<&[_]> = Some(&[2, 1]);
-        let stats = make_stats(vec![10, 20, 30]).project(projection);
+        let projection = Some(vec![2, 1]);
+        let stats = make_stats(vec![10, 20, 30]).project(projection.as_ref());
         assert_eq!(stats, make_stats(vec![30, 20]));
     }
 
     #[test]
     fn test_project_repeated() {
-        let projection: Option<&[_]> = Some(&[1, 2, 1, 1, 0, 2]);
-        let stats = make_stats(vec![10, 20, 30]).project(projection);
+        let projection = Some(vec![1, 2, 1, 1, 0, 2]);
+        let stats = make_stats(vec![10, 20, 30]).project(projection.as_ref());
         assert_eq!(stats, make_stats(vec![20, 30, 20, 20, 10, 30]));
     }
 

@@ -202,8 +202,7 @@ impl CustomExec {
         schema: SchemaRef,
         db: CustomDataSource,
     ) -> Self {
-        let projected_schema =
-            project_schema(&schema, projections.map(AsRef::as_ref)).unwrap();
+        let projected_schema = project_schema(&schema, projections).unwrap();
         let cache = Self::compute_properties(projected_schema.clone());
         Self {
             db,

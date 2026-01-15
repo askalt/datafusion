@@ -59,7 +59,7 @@ use std::thread::available_parallelism;
 ///
 /// // Pick columns 'c' and 'b'
 /// let projection = Some(vec![2, 1]);
-/// let projected_schema = project_schema(&schema, projection.as_deref()).unwrap();
+/// let projected_schema = project_schema(&schema, projection.as_ref()).unwrap();
 ///
 /// let expected_schema = SchemaRef::new(Schema::new(vec![
 ///     Field::new("c", DataType::Utf8, true),
@@ -70,10 +70,10 @@ use std::thread::available_parallelism;
 /// ```
 pub fn project_schema(
     schema: &SchemaRef,
-    projection: Option<&[usize]>,
+    projection: Option<impl AsRef<[usize]>>,
 ) -> Result<SchemaRef> {
     let schema = match projection {
-        Some(columns) => Arc::new(schema.project(columns)?),
+        Some(columns) => Arc::new(schema.project(columns.as_ref())?),
         None => Arc::clone(schema),
     };
     Ok(schema)
