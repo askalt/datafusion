@@ -594,7 +594,11 @@ impl OptionProjectionRef {
     /// Applies an optional projection to a [`SchemaRef`], returning the
     /// projected schema.
     pub fn project_schema(&self, schema: &SchemaRef) -> Result<SchemaRef> {
-        project_schema(schema, self.inner.as_deref().as_ref())
+        project_schema(schema, self.projection())
+    }
+
+    fn projection(&self) -> Option<&[usize]> {
+        self.inner.as_deref()
     }
 
     /// Applies an optional projection to a [`Statistics`], returning the
