@@ -59,7 +59,7 @@ use std::thread::available_parallelism;
 ///
 /// // Pick columns 'c' and 'b'
 /// let projection = Some(vec![2, 1]);
-/// let projected_schema = project_schema(&schema, projection.as_deref()).unwrap();
+/// let projected_schema = project_schema(&schema, projection.as_ref()).unwrap();
 ///
 /// let expected_schema = SchemaRef::new(Schema::new(vec![
 ///     Field::new("c", DataType::Utf8, true),
@@ -68,15 +68,32 @@ use std::thread::available_parallelism;
 ///
 /// assert_eq!(projected_schema, expected_schema);
 /// ```
-pub fn project_schema(
+pub fn project_schema<P: AsRef<[usize]>>(
     schema: &SchemaRef,
-    projection: Option<&[usize]>,
+    projection: Option<P>,
 ) -> Result<SchemaRef> {
-    let schema = match projection.map(AsRef::as_ref) {
-        Some(columns) => Arc::new(schema.project(columns)?),
+    let schema = match projection {
+        Some(columns) => Arc::new(schema.project(columns.as_ref())?),
         None => Arc::clone(schema),
     };
     Ok(schema)
+}
+
+/// Trait for types that can be converted into a projection (potential subset of columns)
+pub trait AsProjection {
+    /// Returns the projection as a slice of column indices, if applicable
+    fn as_indices(&self) -> &[usize];
+}
+
+impl AsProjection for &Vec<usize> {
+    fn as_indices(&self) -> &[usize] {
+        self.as_ref()
+    }
+}
+impl AsProjection for &[usize] {
+    fn as_indices(&self) -> &[usize] {
+        self
+    }
 }
 
 /// Extracts a row at the specified index from a set of columns and stores it in the provided buffer.
