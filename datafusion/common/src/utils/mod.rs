@@ -79,23 +79,6 @@ pub fn project_schema<P: AsRef<[usize]>>(
     Ok(schema)
 }
 
-/// Trait for types that can be converted into a projection (potential subset of columns)
-pub trait AsProjection {
-    /// Returns the projection as a slice of column indices, if applicable
-    fn as_indices(&self) -> &[usize];
-}
-
-impl AsProjection for &Vec<usize> {
-    fn as_indices(&self) -> &[usize] {
-        self.as_ref()
-    }
-}
-impl AsProjection for &[usize] {
-    fn as_indices(&self) -> &[usize] {
-        self
-    }
-}
-
 /// Extracts a row at the specified index from a set of columns and stores it in the provided buffer.
 pub fn extract_row_at_idx_to_buf(
     columns: &[ArrayRef],
