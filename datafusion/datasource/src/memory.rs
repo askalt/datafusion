@@ -262,7 +262,7 @@ impl MemorySourceConfig {
         schema: SchemaRef,
         projection: Option<Vec<usize>>,
     ) -> Result<Self> {
-        let projected_schema = project_schema(&schema, projection.as_deref())?;
+        let projected_schema = project_schema(&schema, projection.as_ref())?;
         Ok(Self {
             partitions: partitions.to_vec(),
             schema,
